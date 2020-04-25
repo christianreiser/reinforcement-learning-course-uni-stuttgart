@@ -26,28 +26,49 @@ def greedy(bandit, timesteps):
     n_plays = np.zeros(bandit.n_arms)
     Q = np.zeros(bandit.n_arms)
     possible_arms = range(bandit.n_arms)
-    print(possible_arms)
 
-    # TODO: init variables (rewards, n_plays, Q) by playing each arm once
-
+    # init variables (rewards, n_plays, Q) by playing each arm once
+    # Todo: why?
+    for arm in possible_arms:
+        bandit.play_arm(arm)
 
     # Main loop
     while bandit.total_played < timesteps:
-        # This example shows how to play a random arm:
-        a = random.choice(possible_arms)
-        reward_for_a = bandit.play_arm(a)
-        # TODO: instead do greedy action selection
-        # TODO: update the variables (rewards, n_plays, Q) for the selected arm
+        a = np.argmax(Q)  # choose greedy action
+        rewards[a] += bandit.play_arm(a)  # update rewards
+        n_plays[a] += 1
+        Q = np.divide(rewards, n_plays)  # update value function
 
 
+# epsilon greedy action selection (you can copy your code for greedy as a starting point)
 def epsilon_greedy(bandit, timesteps):
-    # TODO: epsilon greedy action selection (you can copy your code for greedy as a starting point)
-    while bandit.total_played < timesteps:
-        reward_for_a = bandit.play_arm(0)  # Just play arm 0 as placeholder
+    rewards = np.zeros(bandit.n_arms)
+    n_plays = np.zeros(bandit.n_arms)
+    Q = np.zeros(bandit.n_arms)
+    possible_arms = range(bandit.n_arms)
 
+    epsilon = 0.1
+
+
+
+    while bandit.total_played < timesteps:
+        # decide if next action is greedy
+        random_float = np.random.rand()  # returns random float between 0 and 1
+        if random_float >= epsilon:
+            play_greedy = True
+        else:
+            play_greedy = False
+
+        if play_greedy:
+            a = np.argmax(Q)  # choose greedy action
+        else:
+            a = random.choice(possible_arms)  # random exploration action
+        rewards[a] += bandit.play_arm(a)  # update rewards
+        n_plays[a] += 1
+        Q = np.divide(rewards, n_plays)  # update value function
 
 def main():
-    n_episodes = 500  # TODO: set to 10000 to decrease noise in plot
+    n_episodes = 10000  # TODO: set from 500 to 10000 to decrease noise in plot
     n_timesteps = 1000
     rewards_greedy = np.zeros(n_timesteps)
     rewards_egreedy = np.zeros(n_timesteps)
