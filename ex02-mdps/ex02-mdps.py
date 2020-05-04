@@ -1,6 +1,7 @@
 import gym
 import numpy as np
 
+
 # Init environment
 # Lets use a smaller 3x3 custom map for faster computations
 custom_map3x3 = [
@@ -8,9 +9,9 @@ custom_map3x3 = [
     'FFF',
     'FHG',
 ]
-env = gym.make("FrozenLake-v0", desc=custom_map3x3)
+# env = gym.make("FrozenLake-v0", desc=custom_map3x3)
 # TODO: Uncomment the following line to try the default map (4x4):
-#  env = gym.make("FrozenLake-v0")
+env = gym.make("FrozenLake-v0")
 
 # Uncomment the following lines for even larger maps:
 # random_map = generate_random_map(size=5, p=0.8)
@@ -82,21 +83,24 @@ def bruteforce_policies():
     num_optimal_policies = 0
     optimalvalue = np.zeros(n_states, dtype=np.float)
     # in the discrete case a policy is just an array with action = policy[state]
-
+    print('computing all possible policies... may take forever ...')
     all_policies = list(generate_list_of_all_policies(0, n_actions ** n_states, n_actions))
+    print('computing all possible policies finished. Evaluating ...')
+
     for j in range(0, n_actions ** n_states):
         a = (list(map(int, [int for int in all_policies[j]])))
         policy = np.zeros(n_states, dtype=np.int)
         for ele in range(0, len(a)):
             policy[n_states - ele - 1] = a[len(a) - ele - 1]
         value = value_policy(policy)
-        #print('policy=', policy)
         #print('value=', value)
         if np.sum(value) > np.sum(optimalvalue):
             optimalvalue = value
             optimalpolicies = np.zeros((1, n_states))
             optimalpolicies[0] = policy
             num_optimal_policies = 0
+            print('new best policy found. valuesum:', np.sum(value))
+
         elif np.sum(value) == np.sum(optimalvalue):
             num_optimal_policies += 1
             optimalpolicies = np.concatenate((optimalpolicies, np.array([policy])), axis=0)
